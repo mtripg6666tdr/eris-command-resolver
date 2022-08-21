@@ -106,7 +106,7 @@ export class CommandMessage {
         if(copy.files) delete copy.files;
         _opt = copy;
       }
-      const mes = await this._interaction.createFollowup(_opt, options.files);
+      const mes = await this._interaction.editOriginalMessage(_opt, options.files);
       this._interactionReplied = true;
       return this._responseMessage = ResponseMessage.createFromInteraction(this._interaction, mes, this);
     }
