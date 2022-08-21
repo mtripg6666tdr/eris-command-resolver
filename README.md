@@ -6,7 +6,7 @@ Therefore you can support Message-based-command and Interaction-based-command at
   
 This library was splitted from [mtripg6666tdr/Discord-SimpleMusicBot](https://github.com/mtripg6666tdr/Discord-SimpleMusicBot).  
   
-You can see more by reading [API documentation](https://mtripg6666tdr.github.io/djs-command-resolver/) or directly reading [source folder](src/).  
+You can see more by reading [API documentation](https://mtripg6666tdr.github.io/eris-command-resolver/) or directly reading [source folder](src/).  
 
 ## License
 [LICENSE](LICENSE)

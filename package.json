@@ -1,6 +1,6 @@
 {
-  "name": "djs-command-resolver",
-  "version": "1.0.2",
+  "name": "eris-command-resolver",
+  "version": "1.0.0",
   "description": "This allows you to support Message-based-command and Interaction-based-command easily.",
   "main": "dist/index.js",
   "types": "typings/index.d.ts",
@@ -13,16 +13,17 @@
   "author": "mtripg6666tdr",
   "license": "MIT",
   "devDependencies": {
-    "discord.js": "^13.6.0",
+    "@types/node": "^18.7.8",
+    "eris": "^0.17.1",
     "typedoc": "^0.22.13",
     "typescript": "^4.6.2"
   },
   "peerDependencies": {
-    "discord.js": "^13.6.0",
+    "eris": "^0.17.1",
     "typescript": "^4.6.2"
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mtripg6666tdr/djs-command-resolver.git"
+    "url": "git+https://github.com/mtripg6666tdr/eris-command-resolver.git"
   }
 }
