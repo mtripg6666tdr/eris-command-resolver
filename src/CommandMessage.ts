@@ -1,5 +1,7 @@
-import { CommandInteraction, Message, MessageOptions, Client, Collection, MessageAttachment, ReplyMessageOptions } from "discord.js";
+import type { CommandInteraction, Message, Client, InteractionDataOptionsWithValue, AdvancedMessageContent, TextChannel } from "eris";
+import type { MessageOptions } from "./messageOptions";
 import { ResponseMessage } from "./ResponseMessage";
+import { createMessageUrl } from "./util";
 
 /**
  * Represents CommandInteraction or Message which contains command.
@@ -51,10 +53,10 @@ export class CommandMessage {
     const me = new CommandMessage();
     me.isMessage = false;
     me._interaction = interaction;
-    if(!interaction.deferred) interaction.deferReply();
-    me._client = interaction.client;
-    me._command = interaction.commandName;
-    me._options = interaction.options.data.map(arg => arg.value.toString());
+    if(!interaction.acknowledged) interaction.defer();
+    me._client = interaction.channel.client;
+    me._command = interaction.data.name;
+    me._options = interaction.data.options.map(arg => (arg as InteractionDataOptionsWithValue).value.toString());
     me._rawOptions = me._options.join(" ");
     return me;
   }
@@ -65,24 +67,30 @@ export class CommandMessage {
    * @param options message content
    * @returns response message bound to this command message
    */
-  async reply(options:string|MessageOptions):Promise<ResponseMessage>{
+  async reply(options:MessageOptions):Promise<ResponseMessage>{
     if(this.isMessage){
       if(this._responseMessage){
         throw new Error("Target message was already replied");
       }
-      let _opt = null as ReplyMessageOptions;
+      let _opt = null as AdvancedMessageContent;
       if(typeof options === "string"){
         _opt = {
           content: options
         }
       }else{
-        _opt = options;
+        const copy = Object.assign({}, options);
+        delete copy.files;
+        _opt = copy;
       }
-      const msg = await this._message.reply(Object.assign(_opt, {
+      const msg = await this._client.createMessage(this._message.channel.id, Object.assign(_opt, {
+        messageReference: {
+          messageID: this._message.id,
+          failIfNotExists: false,
+        },
         allowedMentions: {
           repliedUser: false
         }
-      } as ReplyMessageOptions));
+      }), options.files);
       return this._responseMessage = ResponseMessage.createFromMessage(msg, this);
     }else{
       if(this._interactionReplied){
@@ -92,10 +100,13 @@ export class CommandMessage {
       if(typeof options === "string"){
         _opt = {content: options, fetchReply:true}
       }else{
-        _opt = {fetchReply: true};
-        _opt = Object.assign(_opt, options);
+        const copy = Object.assign({}, options, {
+          fetchReply: true as const,
+        });
+        if(copy.files) delete copy.files;
+        _opt = copy;
       }
-      const mes = (await this._interaction.editReply(_opt));
+      const mes = await this._interaction.createMessage(_opt, options.files);
       this._interactionReplied = true;
       return this._responseMessage = ResponseMessage.createFromInteraction(this._interaction, mes, this);
     }
@@ -115,7 +126,9 @@ export class CommandMessage {
    */
   async suppressEmbeds(suppress:boolean):Promise<CommandMessage>{
     if(this.isMessage){
-      return CommandMessage.createFromMessageWithParsed(await this._message.suppressEmbeds(suppress), this._command, this._options, this._rawOptions);
+      return CommandMessage.createFromMessageWithParsed(await this._message.edit({
+        flags: suppress ? this._message.flags | 1 << 2 : this._message.flags ^ 1 << 2
+      }), this._command, this._options, this._rawOptions);
     }else{
       return this;
     }
@@ -128,7 +141,7 @@ export class CommandMessage {
     if(this.isMessage){
       return this._message.content;
     }else{
-      return ("/" + this._interaction.commandName + " " + this._interaction.options.data.map(option => option.value).join(" ")).trim();
+      return ("/" + this._interaction.data.name + " " + this._interaction.data.options.map(option => (option as InteractionDataOptionsWithValue).value).join(" ")).trim();
     }
   }
 
@@ -143,7 +156,7 @@ export class CommandMessage {
    * the memeber of this command message
    */
   get member(){
-    return this.isMessage ? this._message.member : this._interaction.guild.members.resolve(this._interaction.user.id);
+    return this.isMessage ? this._message.member : (this._client.getChannel(this._interaction.channel.id) as TextChannel).guild.members.get(this._interaction.user.id);
   }
 
   /**
@@ -157,7 +170,7 @@ export class CommandMessage {
    * the guild of this command message
    */
   get guild(){
-    return this.isMessage ? this._message.guild : this._interaction.guild;
+    return this.isMessage ? (this._message.channel as TextChannel).guild : (this._client.getChannel(this._interaction.channel.id) as TextChannel).guild;
   }
 
   /**
@@ -173,21 +186,21 @@ export class CommandMessage {
    * If this was created from CommandInteraction, this will always return null.
    */
   get url(){
-    return this.isMessage ? this._message.url : null;
+    return this.isMessage ? createMessageUrl(this._message) : null;
   }
 
   /**
    * the timestamp of this command message
    */
   get createdTimestamp(){
-    return this.isMessage ? this._message.createdTimestamp : this._interaction.createdTimestamp;
+    return this.isMessage ? this._message.createdAt : this._interaction.createdAt;
   }
 
   /**
    * the date time of this command message
    */
   get createdAt(){
-    return this.isMessage ? this._message.createdAt : this._interaction.createdAt;
+    return new Date(this.createdTimestamp);
   }
 
   /**
@@ -206,10 +219,10 @@ export class CommandMessage {
 
   /**
    * the attatchment of this command message.
-   * If this was created from CommandInteraction, this will always return empty collection.
+   * If this was created from CommandInteraction, this will always return empty array.
    */
   get attachments(){
-    return this.isMessage ? this._message.attachments : new Collection<string, MessageAttachment>();
+    return this.isMessage ? this._message.attachments : [];
   }
   
   /**

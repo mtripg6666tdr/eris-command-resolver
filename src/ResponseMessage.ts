@@ -1,13 +1,14 @@
-import type { APIMessage } from "discord-api-types";
-import { CommandInteraction, EmojiIdentifierResolvable, Message, MessageEditOptions, SelectMenuInteraction } from "discord.js";
+import type { CommandInteraction, ComponentInteraction, Message, MessageContent, TextChannel } from "eris";
 import { CommandMessage } from "./CommandMessage";
+import { MessageOptions } from "./messageOptions";
+import { createMessageUrl } from "./util";
 
 /**
  * Represents the response message from the bot bound to CommandMessage
  */
 export class ResponseMessage {
   protected isMessage = false;
-  protected _interaction = null as CommandInteraction|SelectMenuInteraction;
+  protected _interaction = null as CommandInteraction|ComponentInteraction;
   protected _message = null as Message;
   protected _commandMessage = null as CommandMessage;
   protected constructor(){}
@@ -18,7 +19,7 @@ export class ResponseMessage {
    * @returns new ResponseMessage instance
    */
   static createFromMessage(message:Message, commandMessage:CommandMessage){
-    if(message.author.id !== message.client.user.id) 
+    if(message.author.id !== message.channel.client.user.id) 
       throw new Error("Message is not the response message");
     const me = new ResponseMessage();
     me.isMessage = true;
@@ -29,16 +30,16 @@ export class ResponseMessage {
 
   /**
    * Initialize this from interaction, response message and CommandMessage
-   * @param interaction interaction an user sent
+   * @param interaction interaction an user sent this must be CommandInteraction or ComponentInteraction fired by changing select menus
    * @param message response message
    * @param commandMessage CommandMessage
    * @returns new ResponseMessage instance
    */
-  static createFromInteraction(interaction:CommandInteraction|SelectMenuInteraction, message:APIMessage|Message, commandMessage:CommandMessage){
+  static createFromInteraction(interaction:CommandInteraction|ComponentInteraction, message:Message, commandMessage:CommandMessage){
     const me = new ResponseMessage();
     me.isMessage = false;
     me._interaction = interaction;
-    if(message.author.id !== interaction.client.user.id) 
+    if(message.author.id !== interaction.channel.client.user.id) 
       throw new Error("Message is not the response message");
     // @ts-ignore
     me._message = message instanceof Message ? message : new Message(client, message);
@@ -51,9 +52,9 @@ export class ResponseMessage {
    * @param options message content
    * @returns Edited ResponseMessage
    */
-  async edit(options:string|MessageEditOptions):Promise<ResponseMessage>{
+  async edit(options:MessageContent):Promise<ResponseMessage>{
     if(this.isMessage){
-      let _opt = null as MessageEditOptions;
+      let _opt = null as MessageOptions;
       if(typeof options === "string"){
         _opt = {
           content: options
@@ -65,19 +66,20 @@ export class ResponseMessage {
         allowedMentions: {
           repliedUser: false
         }
-      } as MessageEditOptions));
+      }));
       const result = ResponseMessage.createFromMessage(msg, this._commandMessage);
       this._commandMessage["_responseMessage"] = result;
       return result;
     }else{
-      let _opt = null as (MessageEditOptions & { fetchReply: true});
+      let _opt = null as (MessageContent & { fetchReply: true});
       if(typeof options === "string"){
         _opt = {content: options, fetchReply:true}
       }else{
         _opt = {fetchReply: true};
         _opt = Object.assign(_opt, options);
       }
-      const mes  = (await this._interaction.editReply(_opt));
+      const originalMessage = await this._interaction.getOriginalMessage();
+      const mes  = await this._interaction.editMessage(originalMessage.id, _opt);
       const result = ResponseMessage.createFromInteraction(this._interaction, mes, this._commandMessage);
       this._commandMessage["_responseMessage"] = result;
       return result;
@@ -104,8 +106,8 @@ export class ResponseMessage {
    * @param emoji reaction emoji
    * @returns message reaction
    */
-  react(emoji:EmojiIdentifierResolvable){
-    return this._message.react(emoji);
+  react(emoji:string){
+    return this._message.addReaction(emoji);
   }
 
   /**
@@ -126,7 +128,7 @@ export class ResponseMessage {
    * the member of this response message
    */
   get member(){
-    return this.isMessage ? this._message.member : this._interaction.guild.members.resolve(this._interaction.user.id);;
+    return this.isMessage ? this._message.member : (this._interaction.channel.client.getChannel(this._interaction.channel.id) as TextChannel).guild.members.get(this._interaction.user.id);
   }
   
   /**
@@ -140,7 +142,7 @@ export class ResponseMessage {
    * the guild of this response message
    */
   get guild(){
-    return this._message.guild;
+    return (this._message.channel as TextChannel).guild;
   }
 
   /**
@@ -154,21 +156,21 @@ export class ResponseMessage {
    * the url of this response message
    */
   get url(){
-    return this._message.url;
+    return createMessageUrl(this._message);
   }
 
   /**
    * the timestamp of this response message
    */
   get createdTimestamp(){
-    return this._message.createdTimestamp;
+    return this._message.createdAt;
   }
 
   /**
    * the date time of this response message
    */
   get createdAt(){
-    return this._message.createdAt;
+    return new Date(this.createdTimestamp);
   }
 
   /**
@@ -211,6 +213,6 @@ export class ResponseMessage {
    * @returns new this
    */
   async fetch(){
-    return ResponseMessage.createFromMessage(await this._message.fetch(), this._commandMessage)
+    return ResponseMessage.createFromMessage(await this._message.channel.client.getMessage(this._message.channel.id, this._message.id), this._commandMessage)
   }
 }
