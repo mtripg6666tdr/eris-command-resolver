@@ -41,8 +41,7 @@ export class ResponseMessage {
     me._interaction = interaction;
     if(message.author.id !== interaction.channel.client.user.id) 
       throw new Error("Message is not the response message");
-    // @ts-ignore
-    me._message = message instanceof Message ? message : new Message(client, message);
+    me._message = message;
     me._commandMessage = commandMessage;
     return me;
   }
@@ -128,7 +127,7 @@ export class ResponseMessage {
    * the member of this response message
    */
   get member(){
-    return this.isMessage ? this._message.member : (this._interaction.channel.client.getChannel(this._interaction.channel.id) as TextChannel).guild.members.get(this._interaction.user.id);
+    return this.isMessage ? this._message.member : (this._interaction.channel as TextChannel).guild.members.get(this._interaction.user.id);
   }
   
   /**
@@ -213,6 +212,8 @@ export class ResponseMessage {
    * @returns new this
    */
   async fetch(){
-    return ResponseMessage.createFromMessage(await this._message.channel.client.getMessage(this._message.channel.id, this._message.id), this._commandMessage)
+    const result = ResponseMessage.createFromMessage(await this._message.channel.client.getMessage(this._message.channel.id, this._message.id), this._commandMessage)
+    this._commandMessage["_responseMessage"] = result;
+    return result;
   }
 }

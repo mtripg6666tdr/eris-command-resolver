@@ -23,7 +23,7 @@ export class CommandMessage {
    * @param message Message an user sent that contains command
    * @returns new CommandMessage instance
    */
-  static createFromMessage(message:Message, prefixLength:number = 1){
+  static createFromMessage(message:Message<TextChannel>, prefixLength:number = 1){
     const me = new CommandMessage();
     me.isMessage = true;
     me._message = message;
@@ -34,7 +34,7 @@ export class CommandMessage {
     return me;
   }
 
-  protected static createFromMessageWithParsed(message:Message, command:string, options:string[], rawOptions:string){
+  protected static createFromMessageWithParsed(message:Message<TextChannel>, command:string, options:string[], rawOptions:string){
     const me = new CommandMessage();
     me.isMessage = true;
     me._message = message;
@@ -56,7 +56,7 @@ export class CommandMessage {
     if(!interaction.acknowledged) interaction.defer();
     me._client = interaction.channel.client;
     me._command = interaction.data.name;
-    me._options = interaction.data.options.map(arg => (arg as InteractionDataOptionsWithValue).value.toString());
+    me._options = interaction.data.options?.map(arg => (arg as InteractionDataOptionsWithValue).value.toString()) || [];
     me._rawOptions = me._options.join(" ");
     return me;
   }
@@ -128,7 +128,7 @@ export class CommandMessage {
     if(this.isMessage){
       return CommandMessage.createFromMessageWithParsed(await this._message.edit({
         flags: suppress ? this._message.flags | 1 << 2 : this._message.flags ^ 1 << 2
-      }), this._command, this._options, this._rawOptions);
+      }) as Message<TextChannel>, this._command, this._options, this._rawOptions);
     }else{
       return this;
     }
@@ -141,7 +141,8 @@ export class CommandMessage {
     if(this.isMessage){
       return this._message.content;
     }else{
-      return ("/" + this._interaction.data.name + " " + this._interaction.data.options.map(option => (option as InteractionDataOptionsWithValue).value).join(" ")).trim();
+      const args = this._interaction.data.options?.map(option => (option as InteractionDataOptionsWithValue).value) || [];
+      return `/${this._interaction.data.name}${args.length > 0 ? args.join(" ") : ""}`;
     }
   }
 
@@ -156,7 +157,7 @@ export class CommandMessage {
    * the memeber of this command message
    */
   get member(){
-    return this.isMessage ? this._message.member : (this._client.getChannel(this._interaction.channel.id) as TextChannel).guild.members.get(this._interaction.user.id);
+    return this.isMessage ? this._message.member : (this._interaction.channel as TextChannel).guild.members.get(this._interaction.user.id);
   }
 
   /**
@@ -170,7 +171,7 @@ export class CommandMessage {
    * the guild of this command message
    */
   get guild(){
-    return this.isMessage ? (this._message.channel as TextChannel).guild : (this._client.getChannel(this._interaction.channel.id) as TextChannel).guild;
+    return this.isMessage ? (this._message.channel as TextChannel).guild : (this._interaction.channel as TextChannel).guild;
   }
 
   /**
