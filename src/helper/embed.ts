@@ -3,18 +3,20 @@
  * at https://github.com/discordjs/discord.js/blob/sblob/e3cbd45e7de069432818148b9dedda03f630f9f7/src/structures/MessageEmbed.js
  */
 
-import { EmbedAuthorOptions, EmbedField, EmbedFooter, EmbedOptions } from "eris";
+import type { EmbedAuthorOptions, EmbedField, EmbedFooter, EmbedFooterOptions, EmbedImageOptions, EmbedOptions } from "eris";
+import { HelperBase } from "./base";
 
 type ColorResolvable = number|[number, number, number];
 
-export class MessageEmbedBuilder {
+export class MessageEmbedBuilder extends HelperBase<EmbedOptions> {
   private data:EmbedOptions = {};
 
   constructor(_data?:EmbedOptions){
+    super();
     if(_data) this.data = Object.assign({}, _data);
   }
 
-  get author(){
+  get author():Readonly<EmbedAuthorOptions>{
     return this.data.author;
   }
 
@@ -23,18 +25,18 @@ export class MessageEmbedBuilder {
   }
 
   get createdAt(){
-    return this.data.timestamp;
+    return this.timestamp;
   }
 
   get description(){
     return this.data.description;
   }
 
-  get fields(){
+  get fields():Readonly<EmbedField[]>{
     return this.data.fields || [];
   }
 
-  get footer(){
+  get footer():Readonly<EmbedFooterOptions>{
     return this.data.footer;
   }
 
@@ -42,7 +44,7 @@ export class MessageEmbedBuilder {
     return `#${this.color.toString(16)}`;
   }
 
-  get image(){
+  get image():Readonly<EmbedImageOptions>{
     return this.data.image;
   }
 
@@ -58,12 +60,12 @@ export class MessageEmbedBuilder {
     );
   }
 
-  get thumbnail(){
+  get thumbnail():Readonly<EmbedImageOptions>{
     return this.data.thumbnail;
   }
 
-  get timestamp(){
-    return this.data.timestamp;
+  get timestamp():Readonly<string|Date>{
+    return this.timestamp;
   }
 
   get title(){
@@ -166,8 +168,7 @@ export class MessageEmbedBuilder {
   }
 
   spliceFields(index:number, deleteCount:number, ...fields:EmbedField[]){
-    this.fields.splice(index, deleteCount, ...fields);
-    return this;
+    return this.data.fields.splice(index, deleteCount, ...fields);
   }
 
   toEris(){
