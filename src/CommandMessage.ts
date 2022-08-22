@@ -157,7 +157,7 @@ export class CommandMessage {
    * the memeber of this command message
    */
   get member(){
-    return this.isMessage ? this._message.member : (this._interaction.channel as TextChannel).guild.members.get(this._interaction.user.id);
+    return this.isMessage ? this._message.member : this._interaction.member;
   }
 
   /**
