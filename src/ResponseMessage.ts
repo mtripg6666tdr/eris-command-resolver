@@ -71,15 +71,15 @@ export class ResponseMessage {
       this._commandMessage["_responseMessage"] = result;
       return result;
     }else{
-      let _opt = null as (MessageContent & { fetchReply: true});
-      if(typeof options === "string"){
-        _opt = {content: options, fetchReply:true}
-      }else{
-        _opt = {fetchReply: true};
-        _opt = Object.assign(_opt, options);
-      }
+      const _opt = typeof options === "string" ? {
+        content: options,
+      } : options;
       const originalMessage = await this._interaction.getOriginalMessage();
-      const mes  = await this._interaction.editMessage(originalMessage.id, _opt);
+      const mes  = await this._interaction.editMessage(originalMessage.id, Object.assign(_opt, {
+        allowedMentions: {
+          repliedUser: false
+        }
+      }));
       const result = ResponseMessage.createFromInteraction(this._interaction, mes, this._commandMessage);
       this._commandMessage["_responseMessage"] = result;
       return result;

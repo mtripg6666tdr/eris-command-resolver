@@ -96,13 +96,13 @@ export class CommandMessage {
       if(this._interactionReplied){
         throw new Error("Target message was already replied");
       }
-      let _opt = null as (MessageOptions & { fetchReply: true});
+      let _opt = null as MessageOptions;
       if(typeof options === "string"){
-        _opt = {content: options, fetchReply:true}
+        _opt = {
+          content: options
+        };
       }else{
-        const copy = Object.assign({}, options, {
-          fetchReply: true as const,
-        });
+        const copy = Object.assign({}, options);
         if(copy.files) delete copy.files;
         _opt = copy;
       }
