@@ -171,6 +171,8 @@ export class MessageEmbedBuilder {
   }
 
   toEris(){
-    return this.data;
+    const result = Object.assign({}, this.data);
+    if(this.data.fields) result.fields = this.data.fields.map(field => Object.assign({}, field));
+    return result;
   }
 }
