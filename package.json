@@ -18,11 +18,10 @@
     "@types/ws": "^8.5.3",
     "eris": "^0.17.1",
     "typedoc": "^0.22.13",
-    "typescript": "^4.6.2"
+    "typescript": "^4.7.4"
   },
   "peerDependencies": {
-    "eris": "^0.17.1",
-    "typescript": "^4.6.2"
+    "eris": "^0.17.1"
   },
   "repository": {
     "type": "git",
