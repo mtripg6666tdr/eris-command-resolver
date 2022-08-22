@@ -152,7 +152,7 @@ export class CommandMessage {
    * the author of this command message
    */
   get author(){
-    return this.isMessage ? this._message.author : this._interaction.user;
+    return this.isMessage ? this._message.author : this._interaction.channel.client.getUserProfile(this._interaction.member.id);
   }
 
   /**
