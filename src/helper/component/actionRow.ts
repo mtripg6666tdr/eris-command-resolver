@@ -18,10 +18,12 @@ export class MessageActionRowBuilder extends HelperBase<ActionRow>{
 
   addComponents(...components:AnyMessageActionRowComponentsBuilder[]){
     this._components.push(...components);
+    return this;
   }
 
   setComponents(...components:AnyMessageActionRowComponentsBuilder[]){
     this._components = components;
+    return this;
   }
 
   spliceComponents(index:number, deleteCount:number, ...components:AnyMessageActionRowComponentsBuilder[]){
