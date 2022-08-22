@@ -8,8 +8,7 @@
     "test": "echo \"Error: no test specified\" && exit 1",
     "build": "tsc",
     "docs": "typedoc ./src/index.ts --excludePrivate",
-    "prepublishOnly": "tsc",
-    "postinstall": "tsc"
+    "prepublishOnly": "tsc"
   },
   "keywords": [],
   "author": "mtripg6666tdr",
