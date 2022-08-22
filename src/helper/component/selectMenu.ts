@@ -55,7 +55,7 @@ export class MessageSelectMenuBuilder extends MessageActionRowComponentsBuilder<
   }
 
   addOptions(...options:SelectMenuOptions[]){
-    this._options.push(...options);
+    (this._options = this._options || []).push(...options);
     return this;
   }
 
