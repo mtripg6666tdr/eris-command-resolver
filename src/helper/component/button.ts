@@ -9,6 +9,9 @@ type ButtonStyles =
   |"LINK"
 ;
 
+/**
+ * a helper to build Button for eris
+ */
 export class MessageButtonBuilder extends MessageActionRowComponentsBuilder<Button> {
   private _customId:string;
   private _disabled:boolean;

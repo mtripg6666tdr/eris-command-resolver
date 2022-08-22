@@ -1,6 +1,9 @@
 import { Constants, SelectMenu, SelectMenuOptions } from "eris";
 import { MessageActionRowComponentsBuilder } from "./actionRowComponent";
 
+/**
+ * a helper to build SelectMenu for eris
+ */
 export class MessageSelectMenuBuilder extends MessageActionRowComponentsBuilder<SelectMenu>{
   private _customId:string;
   private _disabled:boolean;

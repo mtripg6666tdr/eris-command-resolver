@@ -4,6 +4,9 @@ import { MessageActionRowComponentsBuilder } from "./actionRowComponent";
 
 type AnyMessageActionRowComponentsBuilder = MessageActionRowComponentsBuilder<any>;
 
+/**
+ * a helper to build ActionRow for eris
+ */
 export class MessageActionRowBuilder extends HelperBase<ActionRow>{
   private readonly _type:number = Constants.ComponentTypes.ACTION_ROW;
   private _components:AnyMessageActionRowComponentsBuilder[] = [];
