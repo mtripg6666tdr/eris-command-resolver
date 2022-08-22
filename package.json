@@ -26,5 +26,9 @@
   "repository": {
     "type": "git",
     "url": "git+https://github.com/mtripg6666tdr/eris-command-resolver.git"
-  }
+  },
+  "bugs": {
+    "url": "https://github.com/mtripg6666tdr/eris-command-resolver/issues"
+  },
+  "readme": "https://github.com/mtripg6666tdr/eris-command-resolver#readme"
 }
