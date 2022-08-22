@@ -27,6 +27,7 @@ export class CommandMessage {
     const me = new CommandMessage();
     me.isMessage = true;
     me._message = message;
+    me._client = message.channel.client;
     const { command, options, rawOptions } = this.resolveCommandMessage(message.content, prefixLength);
     me._command = command;
     me._options = options;
@@ -38,6 +39,7 @@ export class CommandMessage {
     const me = new CommandMessage();
     me.isMessage = true;
     me._message = message;
+    me._client = message.channel.client;
     me._command = command;
     me._options = options;
     me._rawOptions = rawOptions;
