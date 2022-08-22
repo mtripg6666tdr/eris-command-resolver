@@ -10,8 +10,8 @@ type ColorResolvable = number|[number, number, number];
 export class MessageEmbedBuilder {
   private data:EmbedOptions = {};
 
-  constructor(_data:EmbedOptions){
-    this.data = Object.assign({}, _data);
+  constructor(_data?:EmbedOptions){
+    if(_data) this.data = Object.assign({}, _data);
   }
 
   get author(){
