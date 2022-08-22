@@ -77,6 +77,7 @@ export class MessageEmbedBuilder {
 
   addFields(...fields:EmbedField[]){
     (this.data.fields = this.data.fields || []).push(...fields);
+    return this;
   }
 
   equals(embed:MessageEmbedBuilder|EmbedOptions){
@@ -121,7 +122,7 @@ export class MessageEmbedBuilder {
       if(color.some(colorFragment => colorFragment < 0 || 255 < colorFragment)) throw new Error("invalid color specified");
       this.data.color = (color[0] << 16) + (color[1] << 8) + color[2];
     }
-    this.data;
+    return this;
   }
 
   setDescription(description:string){
@@ -141,14 +142,17 @@ export class MessageEmbedBuilder {
 
   setImage(url:string){
     this.data.image = {url};
+    return this;
   }
 
   setThumbnail(url:string){
     this.data.thumbnail = {url};
+    return this;
   }
 
   setTimestamp(timestamp:Date|number|null){
     this.data.timestamp = typeof timestamp === "number" ? new Date(timestamp) : timestamp;
+    return this;
   }
 
   setTitle(title:string){
