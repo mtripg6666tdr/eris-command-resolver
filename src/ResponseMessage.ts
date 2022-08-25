@@ -1,6 +1,7 @@
 import type { CommandInteraction, ComponentInteraction, Message, MessageContent, TextChannel } from "eris";
-import { CommandMessage } from "./CommandMessage";
-import { MessageOptions } from "./messageOptions";
+import type { MessageOptions } from "./messageOptions";
+import type { CommandMessage } from "./CommandMessage";
+
 import { createMessageUrl } from "./util";
 
 /**

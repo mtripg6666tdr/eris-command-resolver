@@ -1,5 +1,6 @@
 import type { CommandInteraction, Message, Client, InteractionDataOptionsWithValue, AdvancedMessageContent, TextChannel } from "eris";
 import type { MessageOptions } from "./messageOptions";
+
 import { ResponseMessage } from "./ResponseMessage";
 import { createMessageUrl } from "./util";
 
@@ -116,7 +117,7 @@ export class CommandMessage {
 
   /**
    * Response message bound to this command message
-   * @remarks Response message may be stale (if you edited it).
+   * @remarks Response message may be stale.
    */
   get response():ResponseMessage{
     return this._responseMessage;
@@ -152,7 +153,7 @@ export class CommandMessage {
    * the author of this command message
    */
   get author(){
-    return this.isMessage ? this._message.author : this._interaction.channel.client.getUserProfile(this._interaction.member.id);
+    return this.isMessage ? this._message.author : this._interaction.user;
   }
 
   /**
@@ -251,8 +252,8 @@ export class CommandMessage {
 
   protected static parseCommand(cmd:string, prefixLength:number, textNormalizer:((text:string)=>string)) {
     const commandString = textNormalizer(cmd).substring(prefixLength);
-    let [command, ...options] = commandString.split(" ").filter(content => content.length > 0);
-    let rawOptions = options.join(" ");
+    const [command, ...options] = commandString.split(" ").filter(content => content.length > 0);
+    const rawOptions = options.join(" ");
     return {command, options, rawOptions};
   }
 

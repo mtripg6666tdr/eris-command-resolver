@@ -1,6 +1,7 @@
+import type { MessageActionRowComponentsBuilder } from "./actionRowComponent";
+
 import { ActionRow, Constants } from "eris";
 import { HelperBase } from "../base";
-import { MessageActionRowComponentsBuilder } from "./actionRowComponent";
 
 type AnyMessageActionRowComponentsBuilder = MessageActionRowComponentsBuilder<any>;
 
