@@ -50,18 +50,17 @@ export class CommandMessage {
   /**
    * Initialize this from interaction
    * @param interaction Interaction that contains command
-   * @returns new CommandMessage instance
+   * @returns If interaction has already been defered, this will return new CommandMessage. otherwise return Promise<CommandMessage>
    */
   static createFromInteraction(interaction:CommandInteraction){
     const me = new CommandMessage();
     me.isMessage = false;
     me._interaction = interaction;
-    if(!interaction.acknowledged) interaction.defer();
     me._client = interaction.channel.client;
     me._command = interaction.data.name;
     me._options = interaction.data.options?.map(arg => (arg as InteractionDataOptionsWithValue).value.toString()) || [];
     me._rawOptions = me._options.join(" ");
-    return me;
+    return interaction.acknowledged ? me : interaction.defer().then(() => me);
   }
 
   /**
