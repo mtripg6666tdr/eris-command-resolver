@@ -2,7 +2,7 @@ const { TextChannel, Constants } = require("eris");
 const eris = require("eris");
 const { CommandMessage } = require("../dist"); // require("@mtripg6666tdr/eris-command-resolver") in installed environment
 
-const bot = new eris.Client("NzAxNDI3ODUyNzg0MDQyMDU0.XpxVmA.uyerzAOR40XXUSIQtsemR4tMVUQ", {
+const bot = new eris.Client("YOUR TOKEN HERE", {
   // additional args here
 });
 
@@ -33,7 +33,7 @@ bot.on("ready", async () => {
 });
 
 bot.on("messageCreate", message => {
-  if(message.member.bot) return; // ignore messages sent by bots
+  if(!message.member || message.member.bot) return; // ignore messages sent by bots
   if(!(message.channel instanceof eris.TextChannel)) return; // ignore other than guilds
   if(!message.content.startsWith("!")) return; // do nothing to messages without prefix
   const commandMessage = CommandMessage.createFromMessage(message, 1);
