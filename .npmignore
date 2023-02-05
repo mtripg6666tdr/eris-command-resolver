@@ -4,3 +4,7 @@ src
 .npmignore
 tsconfig.json
 docs
+.vscode/*
+.git*
+.husky/**
+example/**
