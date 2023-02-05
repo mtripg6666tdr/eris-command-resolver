@@ -1,4 +1,4 @@
-import type { CommandInteraction, Message, Client, InteractionDataOptionsWithValue, AdvancedMessageContent, TextChannel, ComponentInteraction } from "eris";
+import { CommandInteraction, Message, Client, InteractionDataOptionsWithValue, AdvancedMessageContent, TextChannel, ComponentInteraction, Constants, TextableChannel } from "eris";
 import type { MessageOptions } from "./messageOptions";
 
 import { ResponseMessage } from "./ResponseMessage";
@@ -47,8 +47,8 @@ export class CommandMessage {
     return me;
   }
 
-  static createFromInteraction(interaction:CommandInteraction):CommandMessage|Promise<CommandMessage>;
-  static createFromInteraction(interaction:ComponentInteraction, command:string, options:string[], rawOptions:string):CommandMessage|Promise<CommandMessage>;
+  static createFromInteraction(interaction:CommandInteraction):CommandMessage;
+  static createFromInteraction(interaction:ComponentInteraction, command:string, options:string[], rawOptions:string):CommandMessage;
   /**
    * Initialize this from interaction
    * @param interaction Interaction that contains command
@@ -68,7 +68,7 @@ export class CommandMessage {
       me._options = options;
       me._rawOptions = rawOptions;
     }
-    return interaction.acknowledged ? me : interaction.defer().then(() => me);
+    return me;
   }
 
   /**
@@ -90,6 +90,7 @@ export class CommandMessage {
       }else{
         const copy = Object.assign({}, options);
         delete copy.files;
+        delete copy.ephemeral;
         _opt = copy;
       }
       const msg = await this._client.createMessage(this._message.channel.id, Object.assign(_opt, {
@@ -113,18 +114,28 @@ export class CommandMessage {
         };
       }else{
         const copy = Object.assign({}, options);
-        if(copy.files) delete copy.files;
+        delete copy.files;
+        delete copy.ephemeral;
         _opt = copy;
       }
+      let mes:Message<TextableChannel>  = null;
       if("name" in this._interaction.data){
-        const mes = await this._interaction.editOriginalMessage(_opt, options.files);
-        this._interactionReplied = true;
-        return this._responseMessage = ResponseMessage.createFromInteraction(this._interaction, mes, this);
+        if(this._interaction.acknowledged){
+          mes = await this._interaction.editOriginalMessage(_opt, options.files);
+        }else{
+          await this._interaction.createMessage(Object.assign(_opt, {
+            flags: options.ephemeral ? Constants.MessageFlags.EPHEMERAL : undefined,
+          }), options.files);
+          mes = await this._interaction.getOriginalMessage();
+        }
       }else{
-        const mes = await this._interaction.createFollowup(_opt, options.files);
-        this._interactionReplied = true;
-        return this._responseMessage = ResponseMessage.createFromInteraction(this._interaction, mes, this);
+        await this._interaction.createMessage(Object.assign(_opt, {
+          flags: options.ephemeral ? Constants.MessageFlags.EPHEMERAL : undefined,
+        }), options.files);
+        mes = await this._interaction.getOriginalMessage();
       }
+      this._interactionReplied = true;
+      return this._responseMessage = ResponseMessage.createFromInteraction(this._interaction, mes, this);
     }
   }
 
