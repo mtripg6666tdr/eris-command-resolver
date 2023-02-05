@@ -14,14 +14,14 @@
   "author": "mtripg6666tdr",
   "license": "MIT",
   "devDependencies": {
-    "@commitlint/cli": "^17.1.1",
+    "@commitlint/cli": "^17.4.2",
     "@mtripg6666tdr/commitlint-config": "^1.1.0",
-    "@types/node": "^18.7.8",
-    "@types/ws": "^8.5.3",
+    "@types/node": "^18.11.19",
+    "@types/ws": "^8.5.4",
     "eris": "^0.17.1",
-    "husky": "^8.0.1",
-    "typedoc": "^0.23.10",
-    "typescript": "^4.7.4"
+    "husky": "^8.0.3",
+    "typedoc": "^0.23.24",
+    "typescript": "^4.9.5"
   },
   "peerDependencies": {
     "eris": "^0.17.1"
