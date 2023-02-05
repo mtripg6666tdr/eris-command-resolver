@@ -1,8 +1,11 @@
 > Note: this package is mainly for my own use, but it might be useful if you use as needed  
 
 # eris-command-resolver
+![npm](https://img.shields.io/npm/v/@mtripg6666tdr/eris-command-resolver)
+
 By using this package, both `ComamndInteraction` and `Message` will be resolved as unified `CommandMessage` and you can code with `CommandMessage` with no considering the way the command passed.  
-![what this package does](https://user-images.githubusercontent.com/56076195/187127488-5f1de984-c6cc-499a-9dc9-826afbe19fe5.png)
+![image](https://user-images.githubusercontent.com/56076195/216804553-e6b52c10-7a7d-49fb-b9d1-2ae230213cb9.png)
+
 Therefore you can support Message-based-command and Interaction-based-command at once, without any verbose codes.  
 
 ## Examples
