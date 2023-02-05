@@ -1,4 +1,4 @@
-import type { CommandInteraction, ComponentInteraction, Message, MessageContent, TextChannel } from "eris";
+import type { CommandInteraction, ComponentInteraction, GuildTextableWithThread, Message, MessageContent } from "eris";
 import type { MessageOptions } from "./messageOptions";
 import type { CommandMessage } from "./CommandMessage";
 
@@ -9,9 +9,9 @@ import { createMessageUrl } from "./util";
  */
 export class ResponseMessage {
   protected isMessage = false;
-  protected _interaction = null as CommandInteraction|ComponentInteraction;
-  protected _message = null as Message;
-  protected _commandMessage = null as CommandMessage;
+  protected _interaction:CommandInteraction<GuildTextableWithThread>|ComponentInteraction<GuildTextableWithThread> = null;
+  protected _message:Message<GuildTextableWithThread> = null;
+  protected _commandMessage:CommandMessage = null;
   protected constructor(){}
 
   /**
@@ -20,7 +20,7 @@ export class ResponseMessage {
    * @returns new ResponseMessage instance
    * @internal
    */
-  static createFromMessage(message:Message, commandMessage:CommandMessage){
+  static createFromMessage(message:Message<GuildTextableWithThread>, commandMessage:CommandMessage){
     if(message.author.id !== message.channel.client.user.id) 
       throw new Error("Message is not the response message");
     const me = new ResponseMessage();
@@ -38,7 +38,7 @@ export class ResponseMessage {
    * @returns new ResponseMessage instance
    * @internal
    */
-  static createFromInteraction(interaction:CommandInteraction|ComponentInteraction, message:Message, commandMessage:CommandMessage){
+  static createFromInteraction(interaction:CommandInteraction<GuildTextableWithThread>|ComponentInteraction<GuildTextableWithThread>, message:Message<GuildTextableWithThread>, commandMessage:CommandMessage){
     const me = new ResponseMessage();
     me.isMessage = false;
     me._interaction = interaction;
@@ -77,12 +77,12 @@ export class ResponseMessage {
         content: options,
       } : options;
       const originalMessage = await this._interaction.getOriginalMessage();
-      const mes  = await this._interaction.editMessage(originalMessage.id, Object.assign(_opt, {
+      const mes = await this._interaction.editMessage(originalMessage.id, Object.assign(_opt, {
         allowedMentions: {
           repliedUser: false
         }
       }));
-      const result = ResponseMessage.createFromInteraction(this._interaction, mes, this._commandMessage);
+      const result = ResponseMessage.createFromInteraction(this._interaction, mes as Message<GuildTextableWithThread>, this._commandMessage);
       this._commandMessage["_responseMessage"] = result;
       return result;
     }
@@ -130,7 +130,7 @@ export class ResponseMessage {
    * the member of this response message
    */
   get member(){
-    return this.isMessage ? this._message.member : (this._interaction.channel as TextChannel).guild.members.get(this._interaction.user.id);
+    return this.isMessage ? this._message.member : this._interaction.channel.guild.members.get(this._interaction.user.id);
   }
   
   /**
@@ -144,7 +144,7 @@ export class ResponseMessage {
    * the guild of this response message
    */
   get guild(){
-    return (this._message.channel as TextChannel).guild;
+    return this._message.channel.guild;
   }
 
   /**
@@ -215,7 +215,10 @@ export class ResponseMessage {
    * @returns new this
    */
   async fetch(){
-    const result = ResponseMessage.createFromMessage(await this._message.channel.client.getMessage(this._message.channel.id, this._message.id), this._commandMessage)
+    const result = ResponseMessage.createFromMessage(
+      await this._message.channel.client.getMessage(this._message.channel.id, this._message.id) as Message<GuildTextableWithThread>,
+      this._commandMessage
+    );
     this._commandMessage["_responseMessage"] = result;
     return result;
   }
