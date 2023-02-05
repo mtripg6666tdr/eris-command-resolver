@@ -97,9 +97,11 @@ export class CommandMessage {
         messageReference: {
           messageID: this._message.id,
           failIfNotExists: false,
+          ...(_opt.messageReference || {}),
         },
         allowedMentions: {
-          repliedUser: false
+          repliedUser: false,
+          ...(_opt.allowedMentions || {}),
         }
       }), options.files);
       return this._responseMessage = ResponseMessage.createFromMessage(msg, this);
