@@ -1,4 +1,4 @@
-import { CommandInteraction, Message, Client, InteractionDataOptionsWithValue, AdvancedMessageContent, TextChannel, ComponentInteraction } from "eris";
+import type { CommandInteraction, Message, Client, InteractionDataOptionsWithValue, AdvancedMessageContent, TextChannel, ComponentInteraction } from "eris";
 import type { MessageOptions } from "./messageOptions";
 
 import { ResponseMessage } from "./ResponseMessage";
