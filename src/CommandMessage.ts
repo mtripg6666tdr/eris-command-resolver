@@ -1,4 +1,4 @@
-import { CommandInteraction, Message, Client, InteractionDataOptionsWithValue, AdvancedMessageContent, TextChannel, ComponentInteraction, Constants, TextableChannel } from "eris";
+import { CommandInteraction, Message, Client, InteractionDataOptionsWithValue, AdvancedMessageContent, ComponentInteraction, Constants, TextableChannel, GuildTextableWithThread, GuildTextableChannel } from "eris";
 import type { MessageOptions } from "./messageOptions";
 
 import { ResponseMessage } from "./ResponseMessage";
@@ -9,8 +9,8 @@ import { createMessageUrl } from "./util";
  */
 export class CommandMessage {
   protected isMessage = false;
-  protected _message:Message = null;
-  protected _interaction:CommandInteraction|ComponentInteraction = null;
+  protected _message:Message<GuildTextableWithThread> = null;
+  protected _interaction:CommandInteraction<GuildTextableWithThread>|ComponentInteraction<GuildTextableWithThread> = null;
   protected _interactionReplied = false;
   protected _client:Client = null;
   protected _command:string = null;
@@ -24,7 +24,7 @@ export class CommandMessage {
    * @param message Message an user sent that contains command
    * @returns new CommandMessage instance
    */
-  static createFromMessage(message:Message<TextChannel>, prefixLength:number = 1){
+  static createFromMessage(message:Message<GuildTextableWithThread>, prefixLength:number = 1){
     const me = new CommandMessage();
     me.isMessage = true;
     me._message = message;
@@ -36,7 +36,7 @@ export class CommandMessage {
     return me;
   }
 
-  protected static createFromMessageWithParsed(message:Message<TextChannel>, command:string, options:string[], rawOptions:string){
+  protected static createFromMessageWithParsed(message:Message<GuildTextableWithThread>, command:string, options:string[], rawOptions:string){
     const me = new CommandMessage();
     me.isMessage = true;
     me._message = message;
@@ -47,14 +47,14 @@ export class CommandMessage {
     return me;
   }
 
-  static createFromInteraction(interaction:CommandInteraction):CommandMessage;
-  static createFromInteraction(interaction:ComponentInteraction, command:string, options:string[], rawOptions:string):CommandMessage;
+  static createFromInteraction(interaction:CommandInteraction<GuildTextableWithThread>):CommandMessage;
+  static createFromInteraction(interaction:ComponentInteraction<GuildTextableWithThread>, command:string, options:string[], rawOptions:string):CommandMessage;
   /**
    * Initialize this from interaction
    * @param interaction Interaction that contains command
    * @returns If interaction has already been defered, this will return new CommandMessage. otherwise return Promise<CommandMessage>
    */
-  static createFromInteraction(interaction:CommandInteraction|ComponentInteraction, command?:string, options?:string[], rawOptions?:string){
+  static createFromInteraction(interaction:CommandInteraction<GuildTextableWithThread>|ComponentInteraction<GuildTextableWithThread>, command?:string, options?:string[], rawOptions?:string){
     const me = new CommandMessage();
     me.isMessage = false;
     me._interaction = interaction;
@@ -104,7 +104,7 @@ export class CommandMessage {
           ...(_opt.allowedMentions || {}),
         }
       }), options.files);
-      return this._responseMessage = ResponseMessage.createFromMessage(msg, this);
+      return this._responseMessage = ResponseMessage.createFromMessage(msg as Message<GuildTextableChannel>, this);
     }else{
       if(this._interactionReplied){
         throw new Error("Target message was already replied");
@@ -137,7 +137,7 @@ export class CommandMessage {
         mes = await this._interaction.getOriginalMessage();
       }
       this._interactionReplied = true;
-      return this._responseMessage = ResponseMessage.createFromInteraction(this._interaction, mes, this);
+      return this._responseMessage = ResponseMessage.createFromInteraction(this._interaction, mes as Message<GuildTextableWithThread>, this);
     }
   }
 
@@ -157,7 +157,7 @@ export class CommandMessage {
     if(this.isMessage){
       return CommandMessage.createFromMessageWithParsed(await this._message.edit({
         flags: suppress ? this._message.flags | 1 << 2 : this._message.flags ^ 1 << 2
-      }) as Message<TextChannel>, this._command, this._options, this._rawOptions);
+      }) as Message<GuildTextableWithThread>, this._command, this._options, this._rawOptions);
     }else{
       return this;
     }
@@ -199,7 +199,7 @@ export class CommandMessage {
    * the guild of this command message
    */
   get guild(){
-    return this.isMessage ? (this._message.channel as TextChannel).guild : (this._interaction.channel as TextChannel).guild;
+    return this.isMessage ? this._message.channel.guild : this._interaction.channel.guild;
   }
 
   /**
