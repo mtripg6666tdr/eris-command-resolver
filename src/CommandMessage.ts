@@ -1,4 +1,4 @@
-import type { CommandInteraction, Message, Client, InteractionDataOptionsWithValue, AdvancedMessageContent, TextChannel } from "eris";
+import type { CommandInteraction, Message, Client, InteractionDataOptionsWithValue, AdvancedMessageContent, TextChannel, ComponentInteraction } from "eris";
 import type { MessageOptions } from "./messageOptions";
 
 import { ResponseMessage } from "./ResponseMessage";
@@ -9,14 +9,14 @@ import { createMessageUrl } from "./util";
  */
 export class CommandMessage {
   protected isMessage = false;
-  protected _message = null as Message;
-  protected _interaction = null as CommandInteraction;
+  protected _message:Message = null;
+  protected _interaction:CommandInteraction|ComponentInteraction = null;
   protected _interactionReplied = false;
-  protected _client = null as Client;
-  protected _command = null as string;
-  protected _options = null as string[];
-  protected _rawOptions = null as string;
-  protected _responseMessage = null as ResponseMessage;
+  protected _client:Client = null;
+  protected _command:string = null;
+  protected _options:string[] = null;
+  protected _rawOptions:string = null;
+  protected _responseMessage:ResponseMessage = null;
   protected constructor(){}
 
   /**
@@ -47,19 +47,27 @@ export class CommandMessage {
     return me;
   }
 
+  static createFromInteraction(interaction:CommandInteraction):CommandMessage|Promise<CommandMessage>;
+  static createFromInteraction(interaction:ComponentInteraction, command:string, options:string[], rawOptions:string):CommandMessage|Promise<CommandMessage>;
   /**
    * Initialize this from interaction
    * @param interaction Interaction that contains command
    * @returns If interaction has already been defered, this will return new CommandMessage. otherwise return Promise<CommandMessage>
    */
-  static createFromInteraction(interaction:CommandInteraction){
+  static createFromInteraction(interaction:CommandInteraction|ComponentInteraction, command?:string, options?:string[], rawOptions?:string){
     const me = new CommandMessage();
     me.isMessage = false;
     me._interaction = interaction;
     me._client = interaction.channel.client;
-    me._command = interaction.data.name;
-    me._options = interaction.data.options?.map(arg => (arg as InteractionDataOptionsWithValue).value.toString()) || [];
-    me._rawOptions = me._options.join(" ");
+    if("name" in interaction.data){
+      me._command = interaction.data.name;
+      me._options = interaction.data.options?.map(arg => (arg as InteractionDataOptionsWithValue).value.toString()) || [];
+      me._rawOptions = me._options.join(" ");
+    }else{
+      me._command = command;
+      me._options = options;
+      me._rawOptions = rawOptions;
+    }
     return interaction.acknowledged ? me : interaction.defer().then(() => me);
   }
 
@@ -108,9 +116,15 @@ export class CommandMessage {
         if(copy.files) delete copy.files;
         _opt = copy;
       }
-      const mes = await this._interaction.editOriginalMessage(_opt, options.files);
-      this._interactionReplied = true;
-      return this._responseMessage = ResponseMessage.createFromInteraction(this._interaction, mes, this);
+      if("name" in this._interaction.data){
+        const mes = await this._interaction.editOriginalMessage(_opt, options.files);
+        this._interactionReplied = true;
+        return this._responseMessage = ResponseMessage.createFromInteraction(this._interaction, mes, this);
+      }else{
+        const mes = await this._interaction.createFollowup(_opt, options.files);
+        this._interactionReplied = true;
+        return this._responseMessage = ResponseMessage.createFromInteraction(this._interaction, mes, this);
+      }
     }
   }
 
@@ -143,8 +157,7 @@ export class CommandMessage {
     if(this.isMessage){
       return this._message.content;
     }else{
-      const args = this._interaction.data.options?.map(option => (option as InteractionDataOptionsWithValue).value) || [];
-      return `/${this._interaction.data.name}${args.length > 0 ? args.join(" ") : ""}`;
+      return `/${this._command} ${this.rawOptions}`.trim();
     }
   }
 
