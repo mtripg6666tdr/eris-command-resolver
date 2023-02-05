@@ -18,6 +18,7 @@ export class ResponseMessage {
    * Initialize this from response message (Message) and CommandMessage
    * @param message Response message
    * @returns new ResponseMessage instance
+   * @internal
    */
   static createFromMessage(message:Message, commandMessage:CommandMessage){
     if(message.author.id !== message.channel.client.user.id) 
@@ -31,10 +32,11 @@ export class ResponseMessage {
 
   /**
    * Initialize this from interaction, response message and CommandMessage
-   * @param interaction interaction an user sent this must be CommandInteraction or ComponentInteraction fired by changing select menus
+   * @param interaction interaction an user sent. this must be CommandInteraction or ComponentInteraction
    * @param message response message
    * @param commandMessage CommandMessage
    * @returns new ResponseMessage instance
+   * @internal
    */
   static createFromInteraction(interaction:CommandInteraction|ComponentInteraction, message:Message, commandMessage:CommandMessage){
     const me = new ResponseMessage();
