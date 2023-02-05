@@ -1,6 +1,6 @@
 {
   "name": "@mtripg6666tdr/eris-command-resolver",
-  "version": "1.1.0",
+  "version": "2.0.0",
   "description": "Message wrapper for eris to absorb the differences between Message and CommandMessage, including some helper classes",
   "main": "dist/index.js",
   "scripts": {
