@@ -47,8 +47,8 @@ export class CommandMessage {
     return me;
   }
 
-  static createFromInteraction(interaction:CommandInteraction):Promise<CommandMessage>;
-  static createFromInteraction(interaction:ComponentInteraction, command:string, options:string[], rawOptions:string):Promise<CommandMessage>;
+  static createFromInteraction(interaction:CommandInteraction):CommandMessage|Promise<CommandMessage>;
+  static createFromInteraction(interaction:ComponentInteraction, command:string, options:string[], rawOptions:string):CommandMessage|Promise<CommandMessage>;
   /**
    * Initialize this from interaction
    * @param interaction Interaction that contains command
