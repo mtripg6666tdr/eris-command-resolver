@@ -131,10 +131,9 @@ export class CommandMessage {
           mes = await this._interaction.getOriginalMessage();
         }
       }else{
-        await this._interaction.createMessage(Object.assign(_opt, {
+        mes = await this._interaction.createFollowup(Object.assign(_opt, {
           flags: options.ephemeral ? Constants.MessageFlags.EPHEMERAL : undefined,
         }), options.files);
-        mes = await this._interaction.getOriginalMessage();
       }
       this._interactionReplied = true;
       return this._responseMessage = ResponseMessage.createFromInteraction(this._interaction, mes as Message<GuildTextableWithThread>, this);

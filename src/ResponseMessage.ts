@@ -55,7 +55,7 @@ export class ResponseMessage {
    * @returns Edited ResponseMessage
    */
   async edit(options:MessageContent):Promise<ResponseMessage>{
-    if(this.isMessage){
+    if(this.isMessage || !("name" in this._interaction.data)){
       let _opt = null as MessageOptions;
       if(typeof options === "string"){
         _opt = {
@@ -73,6 +73,7 @@ export class ResponseMessage {
       this._commandMessage["_responseMessage"] = result;
       return result;
     }else{
+      // コマンド
       const _opt = typeof options === "string" ? {
         content: options,
       } : options;
