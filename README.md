@@ -1,3 +1,6 @@
+# :warning: This library is no longer supported.
+See [#15](https://github.com/mtripg6666tdr/eris-command-resolver/issues/15) for more information.
+
 > Note: this package is mainly for my own use, but it might be useful if you use as needed  
 
 # eris-command-resolver
